@@ -1,7 +1,7 @@
 import logo from './logo.svg';
 import './App.css';
 import { UserLogin } from './Components/login_feature'
-import { Inventory } from './Components/inventory'
+import { MyInventory, AllInventory } from './Components/inventory'
 import { Routes, Route, Link } from "react-router-dom";
 
 function App() {
@@ -12,7 +12,8 @@ function App() {
       </nav>
   <Routes>
     <Route path='/login' element={<UserLogin />} />
-    <Route path='/inventory' element={<Inventory />} />
+    <Route path='/myinventory' element={<MyInventory />} />
+    <Route path='/inventory' element={<AllInventory />} />
   </Routes>
     </div>
   );

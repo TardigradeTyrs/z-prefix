@@ -72,6 +72,15 @@ app.post("/createAccount", async (req, res) => {
     .then(res.status(201).send("Account Created!"));
 });
 
+app.delete("/inventory", (req, res) => {
+  const { Id } = req.body
+  knex("item")
+  .select('*')
+  .where("Id", Id)
+  .delete()
+  .then(res.status(202).send(`${Id} Deleted`))
+})
+
 app.listen(port, () => {
   console.log("It is running");
 });

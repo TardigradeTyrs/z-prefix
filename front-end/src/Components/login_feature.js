@@ -45,7 +45,7 @@ export const UserLogin = () => {
         if (res.status === 200) {
           let user = await res.json();
           setLoggedInUser(user[0].UserId);
-          navigate('/inventory')
+          navigate('/myinventory')
         }
       });
     }
