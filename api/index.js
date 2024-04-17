@@ -31,15 +31,16 @@ app.get("/inventory", (req, res) => {
 });
 
 app.post("/inventory", (req, res) => {
-  const { UserId, Item_Name, Description, Quantity } = req.body
-  knex('item')
-  .insert({
-    UserId: UserId,
-    Item_Name: Item_Name,
-    Description: Description,
-    Quantity: Quantity
-    }).then(res.status(201).send("Item Added!"))
-})
+  const { UserId, Item_Name, Description, Quantity } = req.body;
+  knex("item")
+    .insert({
+      UserId: UserId,
+      Item_Name: Item_Name,
+      Description: Description,
+      Quantity: Quantity,
+    })
+    .then(res.status(201).send("Item Added!"));
+});
 
 app.post("/login", async (req, res) => {
   const { Username, Password } = req.body;
@@ -72,14 +73,27 @@ app.post("/createAccount", async (req, res) => {
     .then(res.status(201).send("Account Created!"));
 });
 
-app.delete("/inventory", (req, res) => {
-  const { Id } = req.body
+app.put("/inventory", (req, res) => {
+  const { Id, Item_Name, Description, Quantity } = req.body;
+  console.log(Id, Item_Name)
   knex("item")
-  .select('*')
-  .where("Id", Id)
-  .delete()
-  .then(res.status(202).send(`${Id} Deleted`))
-})
+    .where("Id", Id)
+    .update({
+      Item_Name: Item_Name,
+      Description: Description,
+      Quantity: Quantity,
+    })
+    .then(res.status(202).send("item updated"));
+});
+
+app.delete("/inventory", (req, res) => {
+  const { Id } = req.body;
+  knex("item")
+    .select("*")
+    .where("Id", Id)
+    .delete()
+    .then(res.status(202).send(`${Id} Deleted`));
+});
 
 app.listen(port, () => {
   console.log("It is running");

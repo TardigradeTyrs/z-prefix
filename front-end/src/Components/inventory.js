@@ -1,15 +1,13 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 import { loggedInContext } from "./Global-Context";
-import { useNavigate } from "react-router-dom";
 
 export const MyInventory = () => {
-  const { loggedInUser, refreshToggle, setRefreshToggle, setIndividualItem } =
+  const { loggedInUser, refreshToggle, setRefreshToggle, handleItemClick } =
     useContext(loggedInContext);
   const [inventory, setInventory] = useState([]);
   const [additem, setAddItem] = useState(false);
   const [newItem, setNewItem] = useState({});
   const pageRendered = useRef(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
     fetch(`http://localhost:8080/inventory`)
@@ -20,6 +18,7 @@ export const MyInventory = () => {
 
   useEffect(() => {
     if (pageRendered.current) {
+      console.log("NewItem Running");
       fetch("http://localhost:8080/inventory", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -33,6 +32,7 @@ export const MyInventory = () => {
         }
       });
     }
+
     pageRendered.current = true;
   }, [newItem]);
 
@@ -46,9 +46,34 @@ export const MyInventory = () => {
     });
   };
 
-  const handleEdit = (index) => {
-    let list = document.getElementById(`item${index}`);
-    list.contentEditable = true;
+  const handleEdit = (index, item) => {
+    let button = document.getElementById(`Edit${index}`);
+    if (button.innerHTML === "Edit") {
+      let list = document.getElementById(`item${index}`);
+      list.contentEditable = true;
+      button.innerHTML = "Save";
+    } else {
+      handleItemUpdate(index, item);
+      button.innerHTML = "Edit";
+    }
+  };
+
+  const handleItemUpdate = (index, item) => {
+    let { Id } = item;
+    fetch("http://localhost:8080/inventory", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        Id: Id,
+        Item_Name: document.getElementById(`name${index}`).innerHTML,
+        Description: document.getElementById(`Description${index}`).innerHTML,
+        Quantity: document.getElementById(`Quantity${index}`).innerHTML,
+      }),
+    }).then((res) => {
+      if (res.status !== 202) {
+        window.alert("There was an issue with updaing this item.");
+      }
+    });
   };
 
   const handleDelete = async (e, item, name) => {
@@ -86,16 +111,18 @@ export const MyInventory = () => {
         ) : (
           inventory.map((eitem, index) => {
             return (
-              <tr>
+              <tr key={`item${index}`} id={`item${index}`}>
                 <td id={`name${index}`}>{eitem.Item_Name}</td>
                 <td id={`Quantity${index}`}>{eitem.Quantity}</td>
                 <td id={`Description${index}`}>
-                  {eitem.Description.substring(0, 100)}
+                  {eitem.Description.substring(0, 100) +
+                    (eitem.Description.length > 100 ? "..." : "")}
                 </td>
                 <td>
+                  <button onClick={() => handleItemClick(eitem)}>View</button>
                   <button
                     id={`Edit${index}`}
-                    onClick={(e) => handleEdit(index)}
+                    onClick={(e) => handleEdit(index, eitem)}
                   >
                     Edit
                   </button>
@@ -129,9 +156,8 @@ export const MyInventory = () => {
 };
 
 export const AllInventory = () => {
-  const { refreshToggle, setIndividualItem } = useContext(loggedInContext);
+  const { refreshToggle, handleItemClick } = useContext(loggedInContext);
   const [inventory, setInventory] = useState([]);
-  const navigate = useNavigate();
 
   useEffect(() => {
     fetch(`http://localhost:8080/inventory`)
@@ -146,6 +172,7 @@ export const AllInventory = () => {
           <th>Name</th>
           <th>Quantity</th>
           <th>Description</th>
+          <th></th>
         </tr>
         {inventory.length === 0 ? (
           <tr>
@@ -156,11 +183,15 @@ export const AllInventory = () => {
         ) : (
           inventory.map((eitem, index) => {
             return (
-              <tr id={`item${index}`}>
+              <tr onClick={() => handleItemClick(eitem)} key={`item${index}`}>
                 <td id={`name${index}`}>{eitem.Item_Name}</td>
                 <td id={`Quantity${index}`}>{eitem.Quantity}</td>
                 <td id={`Description${index}`}>
-                  {eitem.Description.substring(0, 100)}
+                  {eitem.Description.substring(0, 100) +
+                    (eitem.Description.length > 100 ? "..." : "")}
+                </td>
+                <td>
+                  <button onClick={() => handleItemClick(eitem)}>View</button>
                 </td>
               </tr>
             );
@@ -172,7 +203,20 @@ export const AllInventory = () => {
 };
 
 export const IndividualItem = () => {
+  const { individualItem } = useContext(loggedInContext);
 
-
-
-}
+  return (
+    <table>
+      <tr>
+        <th>Name</th>
+        <th>Quantity</th>
+        <th>Description</th>
+      </tr>
+      <tr key={individualItem.id}>
+        <td id={individualItem.Item_Name}>{individualItem.Item_Name}</td>
+        <td id={individualItem.Quantity}>{individualItem.Quantity}</td>
+        <td id={individualItem.Description}>{individualItem.Description}</td>
+      </tr>
+    </table>
+  );
+};
