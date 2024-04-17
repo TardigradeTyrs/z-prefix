@@ -2,8 +2,7 @@ FROM node:latest
 
 WORKDIR /api
 
-COPY . /api
-
+COPY . .
 RUN npm install
 
 EXPOSE 8080

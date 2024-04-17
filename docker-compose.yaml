@@ -4,7 +4,7 @@ services:
     build: ./front-end
     container_name: frontend_container
     volumes:
-      - "./front-end:/front-end"
+      - frontend:/front-end
     ports:
       - "3000:3000"
     depends_on:
@@ -13,7 +13,7 @@ services:
     build: ./api
     container_name: api_container
     volumes:
-      - "./api:/api"
+      - api:/api
     ports:
       - "8080:8080"
     environment:
@@ -41,4 +41,6 @@ services:
       - db:/var/lib/postgresql/data
 
 volumes:
+  frontend:
+  api:
   db:
